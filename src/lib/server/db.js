@@ -201,4 +201,3 @@ export const stmts = {
 };
 
 export default db;
-export { stmts };
