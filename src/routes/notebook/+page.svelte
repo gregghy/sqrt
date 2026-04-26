@@ -238,6 +238,12 @@
 		color: var(--text-muted); font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
 		transition: all var(--duration-fast) var(--ease-out); cursor: pointer;
 	}
+
+	@media (max-width: 768px) {
+		.notebook-layout { flex-direction: column; margin: calc(-1 * var(--space-md)); }
+		.note-sidebar { width: 100%; min-width: 100%; border-right: none; border-bottom: 1px solid var(--bg-elevated); max-height: 40vh; }
+		.note-editor { border-top: none; }
+	}
 	.expand-sidebar-btn:hover { background: var(--bg-elevated); color: var(--accent-primary); width: 28px; }
 
 	/* New note/folder forms */

@@ -82,6 +82,17 @@ db.exec(`
 		year INTEGER PRIMARY KEY,
 		target_pages INTEGER NOT NULL DEFAULT 5000
 	);
+
+	-- Notifications
+	CREATE TABLE IF NOT EXISTS notifications (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		title TEXT NOT NULL,
+		message TEXT NOT NULL,
+		trigger_time TEXT NOT NULL,
+		trigger_days TEXT NOT NULL,
+		is_active INTEGER DEFAULT 1,
+		last_triggered TEXT
+	);
 `);
 
 // Migrations for existing databases
@@ -163,6 +174,14 @@ const stmts = {
 		INSERT INTO daily_stats (date, mood, energy, notes) VALUES (?, ?, ?, ?)
 		ON CONFLICT(date) DO UPDATE SET mood = excluded.mood, energy = excluded.energy, notes = excluded.notes
 	`),
+
+	// Notifications
+	getAllNotifications: db.prepare('SELECT * FROM notifications ORDER BY trigger_time ASC'),
+	insertNotification: db.prepare('INSERT INTO notifications (title, message, trigger_time, trigger_days, is_active) VALUES (?, ?, ?, ?, 1)'),
+	updateNotification: db.prepare('UPDATE notifications SET title = ?, message = ?, trigger_time = ?, trigger_days = ? WHERE id = ?'),
+	toggleNotification: db.prepare('UPDATE notifications SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = ?'),
+	deleteNotification: db.prepare('DELETE FROM notifications WHERE id = ?'),
+	markNotificationTriggered: db.prepare('UPDATE notifications SET last_triggered = ? WHERE id = ?')
 };
 
 export default db;

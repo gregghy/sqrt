@@ -9,7 +9,8 @@
 		{ href: '/', label: 'Home', icon: '⌂' },
 		{ href: '/notebook', label: 'Notebook', icon: '✎' },
 		{ href: '/habits', label: 'Habits', icon: '◉' },
-		{ href: '/library', label: 'Library', icon: '📚' }
+		{ href: '/library', label: 'Library', icon: '📚' },
+		{ href: '/notifications', label: 'Notify', icon: '🔔' }
 	];
 
 	let sidebarCollapsed = $state(false);
@@ -75,6 +76,28 @@
 			{@render children()}
 		</div>
 	</main>
+
+	<script>
+		import { onMount } from 'svelte';
+		onMount(() => {
+			if ('Notification' in window) {
+				Notification.requestPermission();
+				setInterval(async () => {
+					try {
+						const res = await fetch('/api/notifications');
+						if (res.ok) {
+							const data = await res.json();
+							data.triggers.forEach(n => {
+								new Notification(n.title, { body: n.message, icon: '/favicon.svg' });
+							});
+						}
+					} catch (e) {
+						// silent fail if network is down
+					}
+				}, 60000); // Check every minute
+			}
+		});
+	</script>
 
 	<!-- Mobile Bottom Navigation -->
 	<nav class="mobile-nav" aria-label="Mobile navigation">
@@ -161,8 +184,9 @@
 
 	/* ======= Mobile Bottom Nav ======= */
 	.mobile-nav {
-		display: none; position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
+		display: none; position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--nav-height) + env(safe-area-inset-bottom));
 		background: var(--bg-surface); border-top: 1px solid var(--bg-elevated); z-index: 100;
+		padding-bottom: env(safe-area-inset-bottom);
 		backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 	}
 	.mobile-nav-link {
@@ -176,8 +200,8 @@
 	/* ======= Responsive ======= */
 	@media (max-width: 768px) {
 		.sidebar { display: none; }
-		.main-content { margin-left: 0 !important; padding-bottom: var(--nav-height); }
-		.page-container { padding: var(--space-md) var(--space-md); }
+		.main-content { margin-left: 0 !important; padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom)); }
+		.page-container { padding: var(--space-md) var(--space-md); overflow-x: hidden; }
 		.mobile-nav { display: flex; justify-content: space-around; align-items: center; }
 	}
 </style>
