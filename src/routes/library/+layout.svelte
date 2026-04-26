@@ -43,7 +43,7 @@
 </div>
 
 <style>
-	.library-layout { display: flex; flex-direction: column; gap: var(--space-lg); }
+	.library-layout { display: flex; flex-direction: column; gap: var(--space-lg); max-width: 100%; overflow-x: hidden; }
 	.library-header h1 {
 		font-size: var(--text-3xl); font-weight: 700;
 		background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
@@ -53,11 +53,11 @@
 
 	.library-nav {
 		display: flex; gap: var(--space-xs); border-bottom: 1px solid var(--bg-elevated);
-		padding-bottom: var(--space-sm); overflow-x: auto;
+		padding-bottom: var(--space-sm); overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch;
 	}
 
 	.library-tab {
-		display: flex; align-items: center; gap: var(--space-sm);
+		flex: 0 0 auto; display: flex; align-items: center; gap: var(--space-sm);
 		padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md);
 		font-weight: 500; font-size: var(--text-sm); color: var(--text-secondary);
 		text-decoration: none; transition: all var(--duration-fast) var(--ease-out);

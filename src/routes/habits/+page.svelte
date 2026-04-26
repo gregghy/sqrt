@@ -238,9 +238,9 @@
 </div>
 
 <style>
-	.habits-page { display: flex; flex-direction: column; gap: var(--space-lg); }
+	.habits-page { display: flex; flex-direction: column; gap: var(--space-lg); max-width: 100%; overflow-x: hidden; }
 
-	.page-header { display: flex; justify-content: space-between; align-items: flex-end; }
+	.page-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-sm); }
 	.page-header h1 {
 		font-size: var(--text-3xl); font-weight: 700;
 		background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
@@ -248,9 +248,9 @@
 	}
 	.subtitle { color: var(--text-secondary); font-size: var(--text-sm); margin-top: var(--space-xs); }
 	.section-title { font-size: var(--text-lg); font-weight: 600; }
-	.card { background: var(--bg-surface); border: 1px solid var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); }
+	.card { background: var(--bg-surface); border: 1px solid var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); max-width: 100%; overflow-x: auto; }
 
-	/* Add form */
+
 	.add-habit-form { display: flex; flex-direction: column; gap: var(--space-md); }
 	.form-row { display: flex; gap: var(--space-sm); }
 	.form-row input[type="text"] { flex: 1; }
@@ -264,10 +264,10 @@
 	.today-section .section-title { margin-bottom: var(--space-md); }
 	.checklist { display: flex; flex-direction: column; gap: var(--space-xs); }
 	.habit-check-row { display: flex; align-items: center; gap: var(--space-xs); }
-	.habit-toggle { flex: 1; display: flex; align-items: center; gap: var(--space-md); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md); transition: all var(--duration-fast) var(--ease-out); width: 100%; }
+	.habit-toggle { flex: 1; display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md); transition: all var(--duration-fast) var(--ease-out); width: 100%; flex-wrap: wrap; }
 	.habit-toggle:hover { background: var(--bg-elevated); }
-	.habit-icon { font-size: var(--text-xl); }
-	.habit-name { flex: 1; text-align: left; font-weight: 500; font-size: var(--text-sm); }
+	.habit-icon { font-size: var(--text-xl); flex-shrink: 0; }
+	.habit-name { flex: 1 1 100px; text-align: left; font-weight: 500; font-size: var(--text-sm); white-space: normal; line-height: 1.2; }
 	.streak-badge { font-size: var(--text-xs); color: var(--text-muted); background: var(--bg-app); padding: 2px 8px; border-radius: var(--radius-full); }
 	.check-indicator { width: 24px; height: 24px; border-radius: var(--radius-full); border: 2px solid var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all var(--duration-fast) var(--ease-spring); flex-shrink: 0; }
 	.check-indicator.checked { border-color: var(--h-color, var(--accent-primary)); background: var(--h-color, var(--accent-primary)); color: var(--text-inverse); }

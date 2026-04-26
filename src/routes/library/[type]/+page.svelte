@@ -225,8 +225,8 @@
 </div>
 
 <style>
-	.media-page { display: flex; flex-direction: column; gap: var(--space-lg); }
-	.page-actions { display: flex; justify-content: space-between; align-items: center; }
+	.media-page { display: flex; flex-direction: column; gap: var(--space-lg); max-width: 100%; }
+	.page-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm); }
 	.page-actions h2 { font-size: var(--text-lg); font-weight: 600; }
 
 	.card { background: var(--bg-surface); border: 1px solid var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); }
