@@ -1,0 +1,17 @@
+{
+    "name": "√ Life Manager",
+    "short_name": "Life Manager",
+    "description": "Personal Dashboard, Habits, Library, and Tasks",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1E1A16",
+    "theme_color": "#1E1A16",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

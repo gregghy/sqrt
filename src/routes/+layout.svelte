@@ -15,6 +15,35 @@
 
 	let sidebarCollapsed = $state(false);
 
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if ('Notification' in window && 'serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').then(reg => {
+				const checkNotify = async () => {
+					try {
+						const res = await fetch('/api/notifications');
+						if (res.ok) {
+							const data = await res.json();
+							data.triggers.forEach(n => {
+								if (Notification.permission === 'granted') {
+									reg.showNotification(n.title, { 
+										body: n.message, 
+										icon: '/favicon.svg',
+										badge: '/favicon.svg',
+										vibrate: [200, 100, 200]
+									});
+								}
+							});
+						}
+					} catch (e) {}
+				};
+				checkNotify(); // call immediately 
+				setInterval(checkNotify, 15000); // 15 seconds
+			}).catch(err => console.error("Service Worker failed:", err));
+		}
+	});
+
 	function isActive(href, pathname) {
 		if (href === '/') return pathname === '/';
 		return pathname.startsWith(href);
@@ -77,27 +106,7 @@
 		</div>
 	</main>
 
-	<script>
-		import { onMount } from 'svelte';
-		onMount(() => {
-			if ('Notification' in window) {
-				Notification.requestPermission();
-				setInterval(async () => {
-					try {
-						const res = await fetch('/api/notifications');
-						if (res.ok) {
-							const data = await res.json();
-							data.triggers.forEach(n => {
-								new Notification(n.title, { body: n.message, icon: '/favicon.svg' });
-							});
-						}
-					} catch (e) {
-						// silent fail if network is down
-					}
-				}, 60000); // Check every minute
-			}
-		});
-	</script>
+
 
 	<!-- Mobile Bottom Navigation -->
 	<nav class="mobile-nav" aria-label="Mobile navigation">

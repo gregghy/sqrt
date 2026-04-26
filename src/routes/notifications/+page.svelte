@@ -2,9 +2,23 @@
 	import { enhance } from '$app/forms';
 	import { slide, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 	let showAddForm = $state(false);
+	let permissionStatus = $state('granted');
+
+	onMount(() => {
+		if ('Notification' in window) {
+			permissionStatus = Notification.permission;
+		}
+	});
+
+	function requestPermission() {
+		if ('Notification' in window) {
+			Notification.requestPermission().then(p => permissionStatus = p);
+		}
+	}
 
 	let newItem = $state({
 		title: '',
@@ -48,6 +62,16 @@
 			{showAddForm ? 'Cancel' : '+ New Notification'}
 		</button>
 	</header>
+
+	{#if permissionStatus !== 'granted'}
+		<div class="permission-banner" in:slide>
+			<div class="perm-text">
+				<strong>Notifications are {permissionStatus === 'denied' ? 'blocked!' : 'not enabled!'}</strong>
+				<p>Your browser needs permission to show push notifications.</p>
+			</div>
+			<button class="btn-primary" onclick={requestPermission}>Enable Notifications</button>
+		</div>
+	{/if}
 
 	{#if showAddForm}
 		<form method="POST" action="?/add" class="card notify-form" transition:slide={{ duration: 200 }}
@@ -142,6 +166,10 @@
 	.page-header { display: flex; justify-content: space-between; align-items: center; }
 	.page-header h2 { font-size: var(--text-2xl); font-weight: 700; color: var(--text-primary); }
 
+	.permission-banner { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) var(--space-lg); background: rgba(226, 184, 120, 0.15); border: 1px solid var(--color-warning); border-radius: var(--radius-md); }
+	.perm-text strong { color: var(--color-warning); }
+	.perm-text p { font-size: var(--text-sm); color: var(--text-secondary); margin-top: 2px; }
+
 	.card { background: var(--bg-surface); border: 1px solid var(--bg-elevated); border-radius: var(--radius-lg); padding: var(--space-lg); }
 
 	.notify-form { display: flex; flex-direction: column; gap: var(--space-md); }
@@ -150,7 +178,7 @@
 	.form-group label { font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
 	
 	.mode-toggles { display: flex; gap: var(--space-xs); background: var(--bg-input); padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--bg-elevated); width: fit-content; }
-	.btn-ghost-sm { padding: 4px 12px; font-size: var(--text-sm); border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; transition: all var(--duration-fast); }
+	.btn-ghost-sm { padding: 4px 12px; font-size: var(--text-sm); border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; transition: all var(--duration-fast); border: none; }
 	.btn-ghost-sm:hover { color: var(--text-primary); }
 	.btn-ghost-sm.active { background: var(--bg-elevated); color: var(--text-primary); font-weight: 500; }
 
@@ -161,7 +189,7 @@
 
 	.form-actions { display: flex; justify-content: flex-end; padding-top: var(--space-md); border-top: 1px solid var(--bg-elevated); margin-top: var(--space-xs); }
 	
-	.btn-primary { background: var(--accent-primary); color: var(--text-inverse); font-weight: 600; padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md); margin-bottom: 0px; }
+	.btn-primary { background: var(--accent-primary); color: var(--text-inverse); font-weight: 600; padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md); margin-bottom: 0px; border: none; }
 	.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 	.notify-list { display: flex; flex-direction: column; gap: var(--space-md); }
@@ -176,7 +204,7 @@
 	.badge { font-size: 0.7rem; padding: 2px 8px; border-radius: var(--radius-full); font-weight: 500; background: var(--bg-elevated); color: var(--text-secondary); }
 	
 	.notify-actions { display: flex; gap: var(--space-xs); align-items: center; }
-	.btn-icon-danger { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: var(--text-xl); color: var(--text-muted); border-radius: var(--radius-sm); transition: all 150ms; }
+	.btn-icon-danger { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: var(--text-xl); color: var(--text-muted); border-radius: var(--radius-sm); transition: all 150ms; border: none; background: transparent; }
 	.btn-icon-danger:hover { background: var(--accent-secondary-muted); color: var(--color-danger); }
 
 	.empty-state { text-align: center; padding: var(--space-3xl) 0; color: var(--text-muted); }
