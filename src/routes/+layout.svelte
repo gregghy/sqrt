@@ -6,40 +6,62 @@
 	let { children } = $props();
 
 	const navItems = [
-		{ href: '/', label: 'Home', icon: '⌂' },
-		{ href: '/notebook', label: 'Notebook', icon: '✎' },
-		{ href: '/habits', label: 'Habits', icon: '◉' },
+		{ href: '/', label: 'Home', icon: '🏠' },
+		{ href: '/dashboard', label: 'Server', icon: '⚡' },
+		{ href: '/notebook', label: 'Notebook', icon: '📝' },
+		{ href: '/habits', label: 'Habits', icon: '🎯' },
 		{ href: '/library', label: 'Library', icon: '📚' },
-		{ href: '/notifications', label: 'Notify', icon: '🔔' }
+		{ href: '/notifications', label: 'Notify', icon: '🔔' },
+		{ href: 'https://app.porcfolio.com', label: 'Porkfolio', icon: '🐷', external: true }
 	];
 
 	let sidebarCollapsed = $state(false);
 
 	import { onMount } from 'svelte';
 
+	function urlBase64ToUint8Array(base64String) {
+		const padding = '='.repeat((4 - base64String.length % 4) % 4);
+		const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+		const rawData = window.atob(base64);
+		const outputArray = new Uint8Array(rawData.length);
+		for (let i = 0; i < rawData.length; ++i) {
+			outputArray[i] = rawData.charCodeAt(i);
+		}
+		return outputArray;
+	}
+
 	onMount(() => {
 		if ('Notification' in window && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/sw.js').then(reg => {
-				const checkNotify = async () => {
+			navigator.serviceWorker.register('/sw.js').then(async reg => {
+				// Only attempt subscription if Notification is 'granted'
+				if (Notification.permission === 'granted') {
 					try {
-						const res = await fetch('/api/notifications');
-						if (res.ok) {
-							const data = await res.json();
-							data.triggers.forEach(n => {
-								if (Notification.permission === 'granted') {
-									reg.showNotification(n.title, { 
-										body: n.message, 
-										icon: '/favicon.svg',
-										badge: '/favicon.svg',
-										vibrate: [200, 100, 200]
-									});
-								}
-							});
-						}
-					} catch (e) {}
-				};
-				checkNotify(); // call immediately 
-				setInterval(checkNotify, 15000); // 15 seconds
+						// 1. Fetch the server's public key
+						const vRes = await fetch('/api/push/vapidPublic');
+						if (!vRes.ok) return;
+						const vData = await vRes.json();
+						const convertedKey = urlBase64ToUint8Array(vData.publicKey);
+						
+						// 2. Subscribe the Browser
+						const subscription = await reg.pushManager.subscribe({
+							userVisibleOnly: true,
+							applicationServerKey: convertedKey
+						});
+						
+						// 3. Post the endpoint back to the DB so Server can loop via Node instead of the Browser Tab
+						await fetch('/api/push/subscribe', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								subscription,
+								timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+							})
+						});
+						
+					} catch (e) {
+						console.error("[PUSH] Subscription failed:", e);
+					}
+				}
 			}).catch(err => console.error("Service Worker failed:", err));
 		}
 	});
@@ -72,11 +94,15 @@
 						href={item.href}
 						class="nav-link"
 						class:active={isActive(item.href, $page.url.pathname)}
-						title={sidebarCollapsed ? item.label : ''}
+						target={item.external ? '_blank' : '_self'}
+						rel={item.external ? 'noopener noreferrer' : ''}
 					>
 						<span class="nav-icon">{item.icon}</span>
 						{#if !sidebarCollapsed}
 							<span class="nav-label">{item.label}</span>
+							{#if item.external}
+								<span class="external-icon" style="margin-left: auto; font-size: 0.7rem; opacity: 0.4;">↗</span>
+							{/if}
 						{/if}
 					</a>
 				</li>
@@ -115,6 +141,8 @@
 				href={item.href}
 				class="mobile-nav-link"
 				class:active={isActive(item.href, $page.url.pathname)}
+				target={item.external ? '_blank' : '_self'}
+				rel={item.external ? 'noopener noreferrer' : ''}
 			>
 				<span class="mobile-nav-icon">{item.icon}</span>
 				<span class="mobile-nav-label">{item.label}</span>

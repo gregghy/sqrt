@@ -8,6 +8,16 @@
 	let showAddForm = $state(false);
 	let permissionStatus = $state('granted');
 
+	let hh = $state('08');
+	let mm = $state('00');
+
+	let newItem = $state({
+		title: '',
+		message: '',
+		trigger_once: true,
+		days: [1, 2, 3, 4, 5]
+	});
+
 	onMount(() => {
 		if ('Notification' in window) {
 			permissionStatus = Notification.permission;
@@ -20,13 +30,7 @@
 		}
 	}
 
-	let newItem = $state({
-		title: '',
-		message: '',
-		trigger_time: '08:00',
-		trigger_once: true,
-		days: [1, 2, 3, 4, 5]
-	});
+
 
 	function formatDays(jsonStr) {
 		if (jsonStr === 'once') return 'Once';
@@ -38,7 +42,9 @@
 	}
 
 	function resetForm() {
-		newItem = { title: '', message: '', trigger_time: '08:00', trigger_once: true, days: [1, 2, 3, 4, 5] };
+		hh = '08';
+		mm = '00';
+		newItem = { title: '', message: '', trigger_once: true, days: [1, 2, 3, 4, 5] };
 		showAddForm = false;
 	}
 
@@ -88,9 +94,14 @@
 			</div>
 
 			<div class="form-row">
-				<div class="form-group">
-					<label>Time</label>
-					<input type="time" name="trigger_time" bind:value={newItem.trigger_time} required />
+				<div class="form-group custom-time">
+					<label>Time (24H)</label>
+					<div class="time-inputs">
+						<input type="number" min="0" max="23" value={hh} oninput={(e) => hh = e.target.value} required placeholder="HH" onblur={() => hh = String(hh).padStart(2, '0')} />
+						<span class="colon">:</span>
+						<input type="number" min="0" max="59" value={mm} oninput={(e) => mm = e.target.value} required placeholder="MM" onblur={() => mm = String(mm).padStart(2, '0')} />
+					</div>
+					<input type="hidden" name="trigger_time" value="{hh}:{mm}" />
 				</div>
 				<div class="form-group mode-select">
 					<label>Frequency</label>
@@ -177,6 +188,11 @@
 	.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
 	.form-group label { font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
 	
+	.time-inputs { display: flex; align-items: center; gap: 4px; background: var(--bg-input); padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--bg-elevated); width: fit-content; }
+	.time-inputs input[type="number"] { background: transparent; border: none; width: 44px; text-align: center; font-size: var(--text-md); font-weight: 600; padding: 4px; color: var(--text-primary); -moz-appearance: textfield; flex-shrink: 0; min-height: 28px; }
+	.time-inputs input[type="number"]::-webkit-outer-spin-button, .time-inputs input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+	.colon { font-weight: 600; font-size: var(--text-md); color: var(--text-secondary); }
+
 	.mode-toggles { display: flex; gap: var(--space-xs); background: var(--bg-input); padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--bg-elevated); width: fit-content; }
 	.btn-ghost-sm { padding: 4px 12px; font-size: var(--text-sm); border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; transition: all var(--duration-fast); border: none; }
 	.btn-ghost-sm:hover { color: var(--text-primary); }

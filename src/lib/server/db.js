@@ -102,7 +102,23 @@ try { db.exec(`ALTER TABLE todos ADD COLUMN goal_id INTEGER REFERENCES goals(id)
 // Prepared Statements
 // ============================================
 
-const stmts = {
+// Notification Push Subscriptions (For background native delivery)
+db.exec(`
+	CREATE TABLE IF NOT EXISTS push_subscriptions (
+		endpoint TEXT PRIMARY KEY,
+		p256dh TEXT NOT NULL,
+		auth TEXT NOT NULL,
+		timezone TEXT NOT NULL
+	);
+`);
+
+export const pushStmts = {
+	saveSub: db.prepare('INSERT OR REPLACE INTO push_subscriptions (endpoint, p256dh, auth, timezone) VALUES (?, ?, ?, ?)'),
+	getAllSubs: db.prepare('SELECT * FROM push_subscriptions'),
+	deleteSub: db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?')
+};
+
+export const stmts = {
 	// Todos
 	getAllTodos: db.prepare(`
 		SELECT t.*, g.title as goal_title, g.color as goal_color
