@@ -22,6 +22,20 @@
 		editorContent = data.content;
 	});
 
+	let saveTimeout;
+	$effect(() => {
+		if (data.activeNote && editorContent !== undefined && editorContent !== data.content) {
+			clearTimeout(saveTimeout);
+			saveTimeout = setTimeout(async () => {
+				const formData = new FormData();
+				formData.append('filepath', data.activeNote);
+				formData.append('content', editorContent);
+				await fetch('?/save', { method: 'POST', body: formData });
+				data.content = editorContent;
+			}, 800);
+		}
+	});
+
 	const renderedMarkdown = $derived(marked(editorContent || '', { breaks: true }));
 	const activeBasename = $derived(data.activeNote ? data.activeNote.replace(/.*\//, '').replace('.md', '') : null);
 
@@ -165,11 +179,11 @@
 					<button class="mode-btn" class:active={!splitView && editing} onclick={() => { splitView = false; editing = true; }} title="Editor only">✎</button>
 					<button class="mode-btn" class:active={!splitView && !editing} onclick={() => { splitView = false; editing = false; }} title="Preview only">👁</button>
 
-					<form method="POST" action="?/save" use:enhance>
-						<input type="hidden" name="filepath" value={data.activeNote} />
-						<input type="hidden" name="content" value={editorContent} />
-						<button type="submit" class="btn-primary btn-sm">Save</button>
-					</form>
+					{#if editorContent !== data.content}
+						<span style="font-size: 0.75rem; color: var(--text-muted); padding: 0 8px;">Saving...</span>
+					{:else}
+						<span style="font-size: 0.75rem; color: var(--text-muted); padding: 0 8px;">Saved</span>
+					{/if}
 
 					<form method="POST" action="?/delete" use:enhance={() => {
 						return async ({ update }) => { await update(); goto('/notebook'); };

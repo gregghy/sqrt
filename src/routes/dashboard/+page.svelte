@@ -84,7 +84,7 @@
 
 			<!-- Disks -->
 			{#each sys.storage as disk}
-				{#if disk.percent > 0 && disk.mount.includes('/')}
+				{#if disk.percent > 0 && disk.mount === '/'}
 					<div class="card metric-card disk-card">
 						<div class="metric-header">Storage ({disk.mount})</div>
 						<div class="metric-value">{disk.percent}%</div>
@@ -93,6 +93,30 @@
 					</div>
 				{/if}
 			{/each}
+
+			<!-- NixOS Packages -->
+			{#if sys.nixOs}
+				<div class="card metric-card">
+					<div class="metric-header">NixOS System</div>
+					<div class="metric-value">{sys.nixOs.packages}</div>
+					<div class="metric-sub">Packages Installed</div>
+				</div>
+			{/if}
+
+			<!-- GPU Load -->
+			{#if sys.gpu}
+				<div class="card metric-card">
+					<div class="metric-header">GPU Load (Nvidia)</div>
+					<div class="metric-value">{sys.gpu.load}%</div>
+					<div class="progress-bar"><div class="fill text-brand" style="width: {sys.gpu.load}%" class:danger={sys.gpu.load > 85}></div></div>
+				</div>
+
+				<div class="card metric-card">
+					<div class="metric-header">System Power Consumption</div>
+					<div class="metric-value">{sys.gpu.power} W</div>
+					<div class="metric-sub">Sourced from GPU</div>
+				</div>
+			{/if}
 		</div>
 	{:else if !error}
 		<div class="card loading-state">
